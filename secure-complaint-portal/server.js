@@ -91,8 +91,11 @@ db.serialize(() => {
 
 function createDefaultAdmin() {
 
-    const adminEmail = "admin@secureportal.com";
-    const adminPassword = "Admin@12345";
+    const adminEmail =
+        process.env.ADMIN_EMAIL || "admin@secureportal.com";
+
+    const adminPassword =
+        process.env.ADMIN_PASSWORD || "Admin@12345";
 
     db.get(
         "SELECT id FROM users WHERE email = ?",
@@ -164,7 +167,7 @@ app.use(helmet());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.set("trust proxy", 1);
 // Session configuration
 app.use(
     session({
@@ -802,12 +805,12 @@ app.get(
 // START SERVER
 // =====================================================
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`
 ========================================
  Secure Complaint Management Portal
 ========================================
- Server: http://localhost:${PORT}
+ Server running on port ${PORT}
 ========================================
 `);
 });
