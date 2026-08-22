@@ -29,7 +29,17 @@ const PORT = process.env.PORT || 3000;
 // DATABASE
 // =====================================================
 
-const db = new sqlite3.Database("./database/database.db", (err) => {
+const fs = require("fs");
+
+const databaseDir = path.join(__dirname, "database");
+
+if (!fs.existsSync(databaseDir)) {
+    fs.mkdirSync(databaseDir, { recursive: true });
+}
+
+const dbPath = path.join(databaseDir, "database.db");
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error("Database connection failed:", err.message);
     } else {
@@ -178,7 +188,7 @@ app.use(
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: false,
+            secure: process.env.NODE_ENV === "production",
             maxAge: 30 * 60 * 1000
         }
     })
