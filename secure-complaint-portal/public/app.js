@@ -1,7 +1,7 @@
 // =====================================================
 // REGISTER
 // =====================================================
-
+document.addEventListener("DOMContentLoaded", () => {
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
@@ -873,3 +873,6 @@ if (adminTable) {
     loadAdminDashboard();
 
 }
+
+
+});
