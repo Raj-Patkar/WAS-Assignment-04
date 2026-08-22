@@ -16,7 +16,7 @@
 
       <p>Sign in to access the complaint portal.</p>
 
-      <form id="loginForm">
+      <form id="loginForm" onsubmit="loginUser(event)">
         <div class="form-group">
           <label>Email</label>
 
@@ -42,9 +42,10 @@
     </div>
 
     <script>
-      document.getElementById("loginForm").onsubmit = async function (e) {
-        e.preventDefault();
+      async function loginUser(event) {
+        event.preventDefault();
 
+        const form = event.target;
         const message = document.getElementById("message");
 
         try {
@@ -55,8 +56,8 @@
             },
             credentials: "include",
             body: JSON.stringify({
-              email: document.getElementById("email").value.trim(),
-              password: document.getElementById("password").value,
+              email: form.querySelector("#email").value.trim(),
+              password: form.querySelector("#password").value,
             }),
           });
 
@@ -68,19 +69,19 @@
             return;
           }
 
-          message.textContent = "Login successful. Redirecting...";
+          message.textContent = "Login successful! Redirecting...";
           message.className = "success";
 
           setTimeout(() => {
-            location.href =
+            window.location.href =
               data.user.role === "ADMIN" ? "/admin.html" : "/student.html";
           }, 500);
-        } catch (err) {
-          console.error(err);
-          message.textContent = "Server connection failed";
+        } catch (error) {
+          console.error(error);
+          message.textContent = "Unable to connect to server.";
           message.className = "error";
         }
-      };
+      }
     </script>
   </body>
 </html>

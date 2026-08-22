@@ -15,7 +15,7 @@
 
       <p>Register as a student.</p>
 
-      <form id="registerForm">
+      <form id="registerForm" onsubmit="registerUser(event)">
         <div class="form-group">
           <label for="name">Name</label>
 
@@ -47,10 +47,15 @@
     </div>
 
     <script>
-      document.getElementById("registerForm").onsubmit = async function (e) {
-        e.preventDefault();
+      async function registerUser(event) {
+        event.preventDefault();
 
+        const form = event.target;
         const message = document.getElementById("message");
+
+        const name = form.querySelector("#name").value.trim();
+        const email = form.querySelector("#email").value.trim();
+        const password = form.querySelector("#password").value;
 
         try {
           const response = await fetch("/api/register", {
@@ -58,11 +63,10 @@
             headers: {
               "Content-Type": "application/json",
             },
-            credentials: "include",
             body: JSON.stringify({
-              name: document.getElementById("name").value.trim(),
-              email: document.getElementById("email").value.trim(),
-              password: document.getElementById("password").value,
+              name,
+              email,
+              password,
             }),
           });
 
@@ -74,18 +78,18 @@
             return;
           }
 
-          message.textContent = "Registration successful. Redirecting...";
+          message.textContent = "Registration successful! Redirecting...";
           message.className = "success";
 
           setTimeout(() => {
-            location.href = "/login.html";
-          }, 700);
-        } catch (err) {
-          console.error(err);
-          message.textContent = "Server connection failed";
+            window.location.href = "/login.html";
+          }, 800);
+        } catch (error) {
+          console.error(error);
+          message.textContent = "Unable to connect to server.";
           message.className = "error";
         }
-      };
+      }
     </script>
   </body>
 </html>
