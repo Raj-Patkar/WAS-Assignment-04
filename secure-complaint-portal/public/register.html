@@ -1,93 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Register - Secure Complaint Portal</title>
 
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-
+  <body>
     <div class="auth-container">
+      <h1>Create Account</h1>
 
-        <h1>Create Account</h1>
+      <p>Register as a student.</p>
 
-        <p>Register as a student.</p>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Name</label>
 
-        <form id="registerForm">
+          <input type="text" id="name" maxlength="50" required />
+        </div>
 
-            <div class="form-group">
+        <div class="form-group">
+          <label for="email">Email</label>
 
-                <label for="name">Name</label>
+          <input type="email" id="email" required />
+        </div>
 
-                <input
-                    type="text"
-                    id="name"
-                    maxlength="50"
-                    required
-                >
+        <div class="form-group">
+          <label for="password">Password</label>
 
-            </div>
+          <input type="password" id="password" minlength="8" required />
+        </div>
 
+        <button type="submit" class="btn full">Create Account</button>
+      </form>
 
-            <div class="form-group">
+      <div id="message"></div>
 
-                <label for="email">Email</label>
+      <p style="margin-top: 20px">
+        Already registered?
 
-                <input
-                    type="email"
-                    id="email"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">Password</label>
-
-                <input
-                    type="password"
-                    id="password"
-                    minlength="8"
-                    required
-                >
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="btn full"
-            >
-                Create Account
-            </button>
-
-        </form>
-
-
-        <div id="message"></div>
-
-
-        <p style="margin-top: 20px">
-
-            Already registered?
-
-            <a href="login.html">
-                Login
-            </a>
-
-        </p>
-
+        <a href="login.html"> Login </a>
+      </p>
     </div>
 
-    <script src="app.js"></script>
-    
-</body>
+    <script>
+      document.getElementById("registerForm").onsubmit = async function (e) {
+        e.preventDefault();
 
+        const message = document.getElementById("message");
+
+        try {
+          const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              name: document.getElementById("name").value.trim(),
+              email: document.getElementById("email").value.trim(),
+              password: document.getElementById("password").value,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            message.textContent = data.error || "Registration failed";
+            message.className = "error";
+            return;
+          }
+
+          message.textContent = "Registration successful. Redirecting...";
+          message.className = "success";
+
+          setTimeout(() => {
+            location.href = "/login.html";
+          }, 700);
+        } catch (err) {
+          console.error(err);
+          message.textContent = "Server connection failed";
+          message.className = "error";
+        }
+      };
+    </script>
+  </body>
 </html>
