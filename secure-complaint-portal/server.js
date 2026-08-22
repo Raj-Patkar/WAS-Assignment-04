@@ -86,6 +86,76 @@ db.serialize(() => {
     console.log("Database tables initialized.");
 });
 
+
+
+
+function createDefaultAdmin() {
+
+    const adminEmail = "admin@secureportal.com";
+    const adminPassword = "Admin@12345";
+
+    db.get(
+        "SELECT id FROM users WHERE email = ?",
+        [adminEmail],
+        async (err, user) => {
+
+            if (err) {
+                console.error("Admin check failed:", err);
+                return;
+            }
+
+            // Admin already exists
+            if (user) {
+                return;
+            }
+
+            try {
+
+                const passwordHash =
+                    await bcrypt.hash(adminPassword, 12);
+
+                db.run(
+                    `
+                    INSERT INTO users
+                    (name, email, password_hash, role)
+                    VALUES (?, ?, ?, ?)
+                    `,
+                    [
+                        "System Administrator",
+                        adminEmail,
+                        passwordHash,
+                        "ADMIN"
+                    ],
+                    (err) => {
+
+                        if (err) {
+                            console.error(
+                                "Admin creation failed:",
+                                err
+                            );
+                            return;
+                        }
+
+                        console.log(
+                            "Default admin account created."
+                        );
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Admin password hashing failed:",
+                    error
+                );
+
+            }
+        }
+    );
+}
+
+
+createDefaultAdmin();
 // =====================================================
 // SECURITY CONFIGURATION
 // =====================================================

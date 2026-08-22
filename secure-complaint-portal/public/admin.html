@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - Secure Complaint Portal</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <div class="logo">
+            SecureComplaint
+        </div>
+
+        <div>
+            <span id="adminName" style="margin-right: 15px;">
+                Admin
+            </span>
+
+            <button id="logoutBtn" class="btn secondary">
+                Logout
+            </button>
+        </div>
+
+    </div>
+
+
+    <main class="dashboard">
+
+        <div class="dashboard-header">
+
+            <div>
+                <h1>Admin Dashboard</h1>
+
+                <p>
+                    Complaint management and security monitoring
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- SECURITY STATUS -->
+
+        <div class="security-panel">
+
+            <h2>Security Controls</h2>
+
+            <div class="security-control">
+                <span>Role-Based Authorization</span>
+                <span class="security-on">ACTIVE</span>
+            </div>
+
+            <div class="security-control">
+                <span>Authentication</span>
+                <span class="security-on">ACTIVE</span>
+            </div>
+
+            <div class="security-control">
+                <span>Input Validation</span>
+                <span class="security-on">ACTIVE</span>
+            </div>
+
+            <div class="security-control">
+                <span>Parameter Validation</span>
+                <span class="security-on">ACTIVE</span>
+            </div>
+
+            <div class="security-control">
+                <span>Audit Logging</span>
+                <span class="security-on">ACTIVE</span>
+            </div>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="card-grid">
+
+            <div class="card">
+                <h3>Total Complaints</h3>
+                <p id="totalComplaints">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Pending</h3>
+                <p id="pendingComplaints">0</p>
+            </div>
+
+            <div class="card">
+                <h3>In Progress</h3>
+                <p id="progressComplaints">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Resolved</h3>
+                <p id="resolvedComplaints">0</p>
+            </div>
+
+        </div>
+
+
+        <!-- COMPLAINTS -->
+
+        <div class="table-container">
+
+            <h2>All Complaints</h2>
+
+            <br>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="adminComplaintsTable"></tbody>
+
+            </table>
+
+        </div>
+
+
+        <br><br>
+
+
+        <!-- AUDIT LOG -->
+
+        <div class="table-container">
+
+            <h2>Security Audit Log</h2>
+
+            <p style="color:#64748b; margin:10px 0 20px;">
+                Recent security-related events recorded by the server.
+            </p>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Resource</th>
+                        <th>Status</th>
+                        <th>IP Address</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="auditLogsTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

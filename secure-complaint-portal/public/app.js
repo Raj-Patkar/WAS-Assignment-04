@@ -479,3 +479,397 @@ if (
     loadStudentDashboard();
 
 }
+
+
+// =====================================================
+// ADMIN DASHBOARD
+// =====================================================
+
+const adminTable =
+    document.getElementById("adminComplaintsTable");
+
+
+async function loadAdminDashboard() {
+
+    try {
+
+        // Check authenticated user
+
+        const meResponse =
+            await fetch("/api/me");
+
+
+        if (!meResponse.ok) {
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+
+        const meData =
+            await meResponse.json();
+
+
+        // Server-side role check is the real protection.
+        // This frontend check only controls the UI.
+
+        if (meData.user.role !== "ADMIN") {
+
+            alert("Access denied. Administrator privileges required.");
+
+            window.location.href = "student.html";
+
+            return;
+        }
+
+
+        document.getElementById(
+            "adminName"
+        ).textContent =
+            meData.user.name;
+
+
+        await loadAdminComplaints();
+
+        await loadAuditLogs();
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin dashboard error:",
+            error
+        );
+
+        window.location.href = "login.html";
+
+    }
+
+}
+
+
+// =====================================================
+// LOAD ALL COMPLAINTS
+// =====================================================
+
+async function loadAdminComplaints() {
+
+    const response =
+        await fetch(
+            "/api/admin/complaints"
+        );
+
+
+    if (!response.ok) {
+
+        alert("Unable to load complaints.");
+
+        return;
+    }
+
+
+    const data =
+        await response.json();
+
+
+    const complaints =
+        data.complaints;
+
+
+    // Statistics
+
+    document.getElementById(
+        "totalComplaints"
+    ).textContent =
+        complaints.length;
+
+
+    document.getElementById(
+        "pendingComplaints"
+    ).textContent =
+        complaints.filter(
+            c => c.status === "PENDING"
+        ).length;
+
+
+    document.getElementById(
+        "progressComplaints"
+    ).textContent =
+        complaints.filter(
+            c => c.status === "IN_PROGRESS"
+        ).length;
+
+
+    document.getElementById(
+        "resolvedComplaints"
+    ).textContent =
+        complaints.filter(
+            c => c.status === "RESOLVED"
+        ).length;
+
+
+    adminTable.innerHTML = "";
+
+
+    if (complaints.length === 0) {
+
+        adminTable.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    No complaints found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    complaints.forEach((complaint) => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                #${complaint.id}
+            </td>
+
+            <td>
+                ${escapeHTML(complaint.name)}
+            </td>
+
+            <td>
+                ${escapeHTML(complaint.email)}
+            </td>
+
+            <td>
+                ${escapeHTML(complaint.subject)}
+            </td>
+
+            <td>
+                <span class="status-badge">
+                    ${escapeHTML(complaint.status)}
+                </span>
+            </td>
+
+            <td>
+
+                <select
+                    class="status-select"
+                    data-id="${complaint.id}"
+                >
+
+                    <option value="PENDING"
+                        ${complaint.status === "PENDING" ? "selected" : ""}>
+                        Pending
+                    </option>
+
+                    <option value="IN_PROGRESS"
+                        ${complaint.status === "IN_PROGRESS" ? "selected" : ""}>
+                        In Progress
+                    </option>
+
+                    <option value="RESOLVED"
+                        ${complaint.status === "RESOLVED" ? "selected" : ""}>
+                        Resolved
+                    </option>
+
+                    <option value="REJECTED"
+                        ${complaint.status === "REJECTED" ? "selected" : ""}>
+                        Rejected
+                    </option>
+
+                </select>
+
+            </td>
+
+        `;
+
+
+        adminTable.appendChild(row);
+
+    });
+
+
+    // Attach status-change handlers
+
+    document
+        .querySelectorAll(".status-select")
+        .forEach(select => {
+
+            select.addEventListener(
+                "change",
+                updateComplaintStatus
+            );
+
+        });
+
+}
+
+
+// =====================================================
+// UPDATE COMPLAINT STATUS
+// =====================================================
+
+async function updateComplaintStatus(e) {
+
+    const complaintId =
+        e.target.dataset.id;
+
+    const status =
+        e.target.value;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/admin/complaints/${complaintId}`,
+                {
+
+                    method: "PATCH",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        status
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "Unable to update complaint."
+            );
+
+            return;
+        }
+
+
+        await loadAdminComplaints();
+
+        await loadAuditLogs();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to connect to server."
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// LOAD AUDIT LOGS
+// =====================================================
+
+async function loadAuditLogs() {
+
+    const response =
+        await fetch(
+            "/api/admin/logs"
+        );
+
+
+    if (!response.ok) {
+
+        return;
+    }
+
+
+    const data =
+        await response.json();
+
+
+    const table =
+        document.getElementById(
+            "auditLogsTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    if (data.logs.length === 0) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    No audit events recorded.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    data.logs.forEach((log) => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                ${escapeHTML(log.timestamp)}
+            </td>
+
+            <td>
+                ${escapeHTML(log.name || "System")}
+            </td>
+
+            <td>
+                ${escapeHTML(log.action)}
+            </td>
+
+            <td>
+                ${escapeHTML(log.resource || "-")}
+            </td>
+
+            <td>
+                ${escapeHTML(log.status)}
+            </td>
+
+            <td>
+                ${escapeHTML(log.ip_address || "-")}
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+// Start Admin Dashboard
+
+if (adminTable) {
+
+    loadAdminDashboard();
+
+}
